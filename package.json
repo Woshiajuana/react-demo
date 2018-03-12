@@ -16,6 +16,7 @@
   "devDependencies": {
     "node-sass": "^4.8.1",
     "react-router": "^4.2.0",
+    "react-router-dom": "^4.2.2",
     "sass-loader": "^6.0.7"
   }
 }

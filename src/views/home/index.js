@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import './index.scss'
-import Menus from './../../components/menus'
-import Head from './../../components/head'
+import Menus from '../../components/part/menus'
+import Head from '../../components/part/head'
 
 class Home extends Component {
     render () {

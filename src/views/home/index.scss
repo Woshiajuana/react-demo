@@ -1,3 +1,17 @@
-.home-title{
-    color: red;
+.container-wrap{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0 auto;
+}
+.menus-wrap{
+    width: 1000px;
+    display: flex;
+    justify-content: center;
+    background-color: #fff;
+}
+.main{
+    width: 1000px;
+    height: 800px;
+    background-color: #fff;
 }

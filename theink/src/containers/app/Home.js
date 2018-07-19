@@ -3,7 +3,7 @@ import React, { Component }         from 'react'
 class Home extends Component {
     render () {
         return (
-            <div>首页</div>
+            <div className="view-inner">首页</div>
         );
     }
 }

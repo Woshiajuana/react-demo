@@ -17,11 +17,11 @@ import './Main.scss'
 class Main extends Component {
     render () {
         return (
-            <div>
+            <div className="view-wrap">
                 <NavBar/>
                 <HashRouter>
                     <Switch>
-                        <Route path="/account1" component={List}/>
+                        <Route path="/list" component={List}/>
                         <Route path="/account" component={Account}/>
                         <Route path="/bill" component={Bill}/>
                         <Route path="/chart" component={Chart}/>

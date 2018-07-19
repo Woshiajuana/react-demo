@@ -1,0 +1,17 @@
+@import './assets/scss/reset';
+@import './assets/scss/define';
+
+html,body{
+    @extend %w100;
+    @extend %h100;
+    @extend %pr;
+}
+
+#root,
+.view-wrap{
+    @extend %pa;
+    @extend %t0;
+    @extend %l0;
+    @extend %r0;
+    @extend %b0;
+}

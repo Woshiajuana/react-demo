@@ -31,8 +31,8 @@ export default class List extends Component<Props> {
         };
     }
 
-    _loadPage () {
-        this.props.navigation.navigate('Details')
+    _loadPage (item) {
+        this.props.navigation.navigate('Details', { data: item })
     }
 
     _renderRow ({item}) {

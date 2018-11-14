@@ -32,7 +32,7 @@ export default class HomeScreen extends React.Component {
     }
 
     _onProgress (data) {
-        console.log('_onProgress', data)
+        // console.log('_onProgress', data)
     }
 
     _onEnd () {

@@ -62,17 +62,12 @@ export default class Item extends Component<Props> {
         })
     }
 
-    _jump () {
-        console.log(2)
-        this.props.navigation.navigate('Details')
-    }
-
     render () {
         let {
             item
         } = this.state;
         return (
-            <TouchableHighlight onPress={ this._jump.bind(this) }>
+            <TouchableHighlight onPress={ this.props.onSelect }>
                 <View style={ styles.item }>
                     <Text style={ styles.title }>{ item.title }</Text>
                     <ImageBackground

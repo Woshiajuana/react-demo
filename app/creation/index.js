@@ -31,9 +31,13 @@ export default class List extends Component<Props> {
         };
     }
 
+    _loadPage () {
+        this.props.navigation.navigate('Details')
+    }
+
     _renderRow ({item}) {
         return (
-            <Item item={ item } navigation={ this.props.navigation } />
+            <Item item={ item } onSelect={ () => this._loadPage(item) }/>
         )
     }
 

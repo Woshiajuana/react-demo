@@ -4,19 +4,29 @@ import {
 
 } from 'react-native'
 import {
-    createDrawerNavigator,
+    createStackNavigator,
 } from 'react-navigation'
 import App from './app/index'
 import Details from './app/details'
 
-export default createDrawerNavigator(
+export default createStackNavigator(
     {
-        App: App,
-        Details: Details,
+        App: {
+            screen: App,
+            navigationOptions: {
+                header: null // 无标题栏
+            },
+        },
+        Details: {
+            screen: Details,
+            navigationOptions: {
+                header: null // 无标题栏
+            },
+        },
     },
     {
         initialRouteName: 'App',
-    }
+    },
 );
 
 

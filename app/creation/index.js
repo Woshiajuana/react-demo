@@ -8,12 +8,9 @@ import {
     FlatList,
     ActivityIndicator,
 } from 'react-native'
-import {
-    createDrawerNavigator,
-} from 'react-navigation'
 import request from '../common/request'
-import config                           from '../common/config'
-import Item                             from '../common/item'
+import config from '../common/config'
+import Item from '../common/item'
 
 type Props = {};
 
@@ -157,7 +154,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#f5fcff',
-        paddingBottom: 30,
     },
     header: {
         paddingTop: 25,

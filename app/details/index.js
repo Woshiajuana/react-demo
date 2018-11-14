@@ -60,6 +60,7 @@ export default class HomeScreen extends React.Component {
                         resizeMode={this.state.resizeMode}
                         repeat={this.state.repeat}
                         source={{ uri: data.video }}
+                        playInBackground={false}     // 当app转到后台运行的时候，播放是否暂停
 
                         onLoadStart={this._onLoadStart.bind(this)}
                         onLoad={this._onLoad.bind(this)}

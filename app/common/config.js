@@ -11,5 +11,6 @@ export default {
         creations: 'api/creation',
         up: 'api/up',
         comment: 'api/comments',
+        signup: 'api/u/signup',
     }
 }

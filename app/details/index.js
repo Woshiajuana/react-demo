@@ -7,8 +7,7 @@ import {
     Dimensions,
     TouchableOpacity,
     Image,
-    ScrollView,
-    ListView,
+    FlatList,
 } from 'react-native'
 import Video from 'react-native-video'
 import Icon from 'react-native-vector-icons/Ionicons'
@@ -16,17 +15,18 @@ import request from '../common/request'
 import config from '../common/config'
 
 const width = Dimensions.get('window').width;
+const cachedResults = {
+    nextPage: 1,
+    items: [],
+    total: 0,
+};
 
 export default class HomeScreen extends React.Component {
     constructor (props) {
         super(props);
         let data = this.props.navigation.getParam('data') || {};
-        let ds = new ListView.DataSource({
-            rowHasChanged: (r1, r2) => r1 !== r2,
-        });
         this.state = {
             rate: 1,
-            dataSource: ds.cloneWithRows([]),
             videoOk: true,
             muted: true,
             playing: false,
@@ -38,6 +38,11 @@ export default class HomeScreen extends React.Component {
             currentTime: 0,
             resizeMode: 'contain',
             data,
+
+
+            isLoadingTail: false,
+            isRefreshing: false,
+            comments: [],
         }
     }
 
@@ -111,33 +116,97 @@ export default class HomeScreen extends React.Component {
         this._fetchData();
     }
 
-    _fetchData () {
+    _fetchData (page = 1) {
         let url = config.api.base + config.api.comment;
         request.get(url, {
             id: 124,
             accessToken: '4556',
+            page,
         }).then((responseJson) => {
             if (!responseJson.success)
                 throw responseJson;
-            let comments = responseJson.data;
-            if (comments && comments.length > 0) {
-                this.setState({
-                    comments,
-                    dataSource: this.state.dataSource.cloneWithRows(comments),
-                })
+            let {
+                data,
+                total
+            } = responseJson;
+            let items = cachedResults.items.slice();
+            if (page !== 0) {
+                items = items.concat(data);
+                cachedResults.nextPage += 1;
+            } else {
+                items = data.concat(items);
             }
+            cachedResults.items = items;
+            cachedResults.total = total;
+            setTimeout(() => {
+                if (page !== 0) {
+                    this.setState({
+                        isLoadingTail: false,
+                        comments: cachedResults.items,
+                    })
+                } else {
+                    this.setState({
+                        isRefreshing: false,
+                        comments: cachedResults.items,
+                    })
+                }
+            }, 20);
         }).catch(error => {
             console.error(error);
+            this.setState({
+                isLoadingTail: false,
+                isRefreshing: false,
+            })
         });
     }
 
-    _renderRow (row) {
+    _renderRow ({item}) {
         return (
-            <View key={row._id} style={styles.replyBoxStyle}>
-                <Image style={styles.replyAvatarStyle} source={{uri: row.replyBy.avatar}}/>
+            <View key={item._id} style={styles.replyBoxStyle}>
+                <Image style={styles.replyAvatarStyle} source={{uri: item.replyBy.avatar}}/>
                 <View style={styles.replyDescBoxStyle}>
-                    <Text style={styles.replyNicknameStyle}>{row.replyBy.nickname}</Text>
-                    <Text style={styles.replyContentStyle}>{row.content}</Text>
+                    <Text style={styles.replyNicknameStyle}>{item.replyBy.nickname}</Text>
+                    <Text style={styles.replyContentStyle}>{item.content}</Text>
+                </View>
+            </View>
+        )
+    }
+
+    _hasMore () {
+        return cachedResults.items.length < cachedResults.total;
+    }
+
+    _fetchMoreData () {
+        if (!this._hasMore() || this.state.isLoadingTail) {
+            return;
+        }
+        let page = cachedResults.nextPage;
+        this._fetchData(page);
+    }
+
+    _renderFooter () {
+        if (!this._hasMore() && cachedResults.total !== 0) {
+            return (
+                <View style={styles.loadingMore}>
+                    <Text style={styles.loadingText}>没有更多了</Text>
+                </View>
+            )
+        }
+        if (!this.state.isLoadingTail) {
+            return <View style={styles.loadingMore} />
+        }
+        return (
+            <ActivityIndicator style={styles.loadingMore} />
+        )
+    }
+
+    _renderHeader (data) {
+        return (
+            <View style={styles.infoBoxStyle}>
+                <Image style={styles.avatarStyle} source={{uri: data.author.avatar}}/>
+                <View style={styles.descBoxStyle}>
+                    <Text style={styles.nicknameStyle}>{data.author.nickname}</Text>
+                    <Text style={styles.titleStyle}>{data.title}</Text>
                 </View>
             </View>
         )
@@ -208,25 +277,16 @@ export default class HomeScreen extends React.Component {
                         <View style={[styles.progressBarStyle, {width: width * this.state.videoProgress}]}/>
                     </View>
                 </View>
-                <ScrollView
-                    style={styles.scrollViewStyle}
-                    showsVerticalScrollIndicator={false}
-                    automaticallyAdjustContentInsets={false}>
-                    <View style={styles.infoBoxStyle}>
-                        <Image style={styles.avatarStyle} source={{uri: data.author.avatar}}/>
-                        <View style={styles.descBoxStyle}>
-                            <Text style={styles.nicknameStyle}>{data.author.nickname}</Text>
-                            <Text style={styles.titleStyle}>{data.title}</Text>
-                        </View>
-                    </View>
-                    <ListView
-                        dataSource={this.state.dataSource}
-                        renderRow={this._renderRow}
-                        enableEmptySections={true}
-                        showsVerticalScrollIndicator={false}
-                        automaticallyAdjustContentInsets={false}
-                    />
-                </ScrollView>
+                <FlatList
+                    style={ styles.wrap }
+                    keyExtractor={(item) => item._id}
+                    data={this.state.comments}
+                    renderItem={ this._renderRow.bind(this) }
+                    onEndReached={ this._fetchMoreData.bind(this) }
+                    onEndReachedThreshold={ 1 }
+                    ListFooterComponent={ this._renderFooter.bind(this) }
+                    ListHeaderComponent={ () => this._renderHeader(data) }
+                />
             </View>
         );
     }
@@ -394,5 +454,12 @@ const styles = StyleSheet.create({
     replyContentStyle: {
         color: '#666',
         marginTop: 4,
+    },
+    loadingMore: {
+        marginVertical: 20,
+    },
+    loadingText: {
+        color: '#777',
+        textAlign: 'center',
     }
 });

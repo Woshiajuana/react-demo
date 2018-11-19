@@ -6,6 +6,8 @@ import {
     ActivityIndicator,
     Dimensions,
     TouchableOpacity,
+    Image,
+    ScrollView,
 } from 'react-native'
 import Video from 'react-native-video'
 import Icon from 'react-native-vector-icons/Ionicons'
@@ -13,9 +15,6 @@ import Icon from 'react-native-vector-icons/Ionicons'
 const width = Dimensions.get('window').width;
 
 export default class HomeScreen extends React.Component {
-    static navigationOptions = {
-        title: 'Home',
-    };
     constructor (props) {
         super(props);
         let data = this.props.navigation.getParam('data') || {};
@@ -98,11 +97,12 @@ export default class HomeScreen extends React.Component {
     }
 
     _pop () {
-
+        this.props.navigation.goBack();
     }
 
     render() {
-
+        let {data} = this.state;
+        console.log(data);
         return (
             <View style={styles.container}>
                 <View style={styles.header}>
@@ -165,6 +165,18 @@ export default class HomeScreen extends React.Component {
                         <View style={[styles.progressBarStyle, {width: width * this.state.videoProgress}]}/>
                     </View>
                 </View>
+                <ScrollView
+                    style={styles.scrollViewStyle}
+                    showsVerticalScrollIndicator={false}
+                    automaticallyAdjustContentInsets={false}>
+                    <View style={styles.infoBoxStyle}>
+                        <Image style={styles.avatarStyle} source={{uri: data.author.avatar}}/>
+                        <View style={styles.descBoxStyle}>
+                            <Text style={styles.nicknameStyle}>{data.author.nickname}</Text>
+                            <Text style={styles.titleStyle}>{data.title}</Text>
+                        </View>
+                    </View>
+                </ScrollView>
             </View>
         );
     }
@@ -283,4 +295,32 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontSize: 20,
     },
+    scrollViewStyle: {
+
+    },
+    infoBoxStyle: {
+        width,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginTop: 10,
+    },
+    avatarStyle: {
+        width: 60,
+        height: 60,
+        marginRight: 10,
+        marginLeft: 10,
+        borderRadius: 30,
+        // backgroundColor: 'red',
+    },
+    descBoxStyle: {
+        flex: 1,
+    },
+    nicknameStyle: {
+        fontSize: 18,
+    },
+    titleStyle: {
+        marginTop: 8,
+        fontSize: 16,
+        color: '#666',
+    }
 });

@@ -8,9 +8,12 @@ import {
     TouchableOpacity,
     Image,
     ScrollView,
+    ListView,
 } from 'react-native'
 import Video from 'react-native-video'
 import Icon from 'react-native-vector-icons/Ionicons'
+import request from '../common/request'
+import config from '../common/config'
 
 const width = Dimensions.get('window').width;
 
@@ -18,8 +21,12 @@ export default class HomeScreen extends React.Component {
     constructor (props) {
         super(props);
         let data = this.props.navigation.getParam('data') || {};
+        let ds = new ListView.DataSource({
+            rowHasChanged: (r1, r2) => r1 !== r2,
+        });
         this.state = {
             rate: 1,
+            dataSource: ds.cloneWithRows([]),
             videoOk: true,
             muted: true,
             playing: false,
@@ -100,6 +107,42 @@ export default class HomeScreen extends React.Component {
         this.props.navigation.goBack();
     }
 
+    componentDidMount () {
+        this._fetchData();
+    }
+
+    _fetchData () {
+        let url = config.api.base + config.api.comment;
+        request.get(url, {
+            id: 124,
+            accessToken: '4556',
+        }).then((responseJson) => {
+            if (!responseJson.success)
+                throw responseJson;
+            let comments = responseJson.data;
+            if (comments && comments.length > 0) {
+                this.setState({
+                    comments,
+                    dataSource: this.state.dataSource.cloneWithRows(comments),
+                })
+            }
+        }).catch(error => {
+            console.error(error);
+        });
+    }
+
+    _renderRow (row) {
+        return (
+            <View key={row._id} style={styles.replyBoxStyle}>
+                <Image style={styles.replyAvatarStyle} source={{uri: row.replyBy.avatar}}/>
+                <View style={styles.replyDescBoxStyle}>
+                    <Text style={styles.replyNicknameStyle}>{row.replyBy.nickname}</Text>
+                    <Text style={styles.replyContentStyle}>{row.content}</Text>
+                </View>
+            </View>
+        )
+    }
+
     render() {
         let {data} = this.state;
         console.log(data);
@@ -176,6 +219,13 @@ export default class HomeScreen extends React.Component {
                             <Text style={styles.titleStyle}>{data.title}</Text>
                         </View>
                     </View>
+                    <ListView
+                        dataSource={this.state.dataSource}
+                        renderRow={this._renderRow}
+                        enableEmptySections={true}
+                        showsVerticalScrollIndicator={false}
+                        automaticallyAdjustContentInsets={false}
+                    />
                 </ScrollView>
             </View>
         );
@@ -189,18 +239,18 @@ const styles = StyleSheet.create({
     },
     videoBoxStyle: {
         width,
-        height: 360,
+        height: width * 0.56,
         backgroundColor: '#000',
     },
     videoStyle: {
         width,
-        height: 360,
+        height: width * 0.56,
         backgroundColor: '#000',
     },
     loadingStyle: {
         position: 'absolute',
         left: 0,
-        top: 140,
+        top: 80,
         width,
         alignSelf: 'center',
         backgroundColor: 'transparent',
@@ -217,7 +267,7 @@ const styles = StyleSheet.create({
     },
     playIconStyle: {
         position: 'absolute',
-        top: 140,
+        top: 120,
         left: width / 2 - 30,
         width: 60,
         height: 60,
@@ -239,7 +289,7 @@ const styles = StyleSheet.create({
     },
     resumeIconStyle: {
         position: 'absolute',
-        top: 140,
+        top: 120,
         left: width / 2 - 30,
         width: 60,
         height: 60,
@@ -255,7 +305,7 @@ const styles = StyleSheet.create({
     failTextStyle: {
         position: 'absolute',
         left: 0,
-        top: 180,
+        top: 90,
         width,
         textAlign: 'center',
         backgroundColor: 'transparent',
@@ -322,5 +372,27 @@ const styles = StyleSheet.create({
         marginTop: 8,
         fontSize: 16,
         color: '#666',
+    },
+    replyBoxStyle: {
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        marginTop: 10,
+    },
+    replyAvatarStyle: {
+        width: 40,
+        height: 40,
+        marginRight: 10,
+        marginLeft: 10,
+        borderRadius: 20,
+    },
+    replyDescBoxStyle: {
+        flex: 1,
+    },
+    replyNicknameStyle: {
+        color: '#666',
+    },
+    replyContentStyle: {
+        color: '#666',
+        marginTop: 4,
     }
 });

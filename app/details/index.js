@@ -8,11 +8,15 @@ import {
     TouchableOpacity,
     Image,
     FlatList,
+    TextInput,
+    Modal,
+    Alert,
 } from 'react-native'
 import Video from 'react-native-video'
 import Icon from 'react-native-vector-icons/Ionicons'
 import request from '../common/request'
 import config from '../common/config'
+import Button from 'react-native-button'
 
 const width = Dimensions.get('window').width;
 const cachedResults = {
@@ -43,6 +47,9 @@ export default class HomeScreen extends React.Component {
             isLoadingTail: false,
             isRefreshing: false,
             comments: [],
+            modalVisible: false,
+            isSending: false,
+            content: '',
         }
     }
 
@@ -119,7 +126,7 @@ export default class HomeScreen extends React.Component {
     _fetchData (page = 1) {
         let url = config.api.base + config.api.comment;
         request.get(url, {
-            id: 124,
+            creation: 124,
             accessToken: '4556',
             page,
         }).then((responseJson) => {
@@ -200,16 +207,83 @@ export default class HomeScreen extends React.Component {
         )
     }
 
+    _setModalVisible (visible) {
+        this.setState({
+            modalVisible: visible,
+        });
+        !visible && (this.setState({
+            content: '',
+        }))
+    }
+
     _renderHeader (data) {
         return (
-            <View style={styles.infoBoxStyle}>
-                <Image style={styles.avatarStyle} source={{uri: data.author.avatar}}/>
-                <View style={styles.descBoxStyle}>
-                    <Text style={styles.nicknameStyle}>{data.author.nickname}</Text>
-                    <Text style={styles.titleStyle}>{data.title}</Text>
+            <View  style={styles.listHeaderStyle}>
+                <View style={styles.infoBoxStyle}>
+                    <Image style={styles.avatarStyle} source={{uri: data.author.avatar}}/>
+                    <View style={styles.descBoxStyle}>
+                        <Text style={styles.nicknameStyle}>{data.author.nickname}</Text>
+                        <Text style={styles.titleStyle}>{data.title}</Text>
+                    </View>
+                </View>
+
+                <View style={styles.commentBoxStyle}>
+                    <View style={styles.commentStyle}>
+                        <TextInput
+                            style={styles.commentInputStyle}
+                            placeholder="敢不敢评论一个..."
+                            multiline={true} onFocus={() => {this._setModalVisible(true)}}/>
+                    </View>
+                </View>
+                <View style={styles.commentAreaStyle}>
+                    <Text style={styles.commentAreaTextStyle}>精彩评论</Text>
                 </View>
             </View>
         )
+    }
+
+    _submit () {
+        if (!this.state.content)
+            return Alert.alert('留言不能为空');
+        if (this.state.isSending)
+            return Alert.alert('正在评论中！');
+        this.setState({
+            isSending: true,
+        }, () => {
+            let body = {
+                accessToken: 'xxx',
+                creation: '123554',
+                content: this.state.content,
+            };
+            let url = config.api.base + config.api.comment;
+            request.post(url, body).then((responseJson) => {
+                if (!responseJson.success)
+                    throw responseJson;
+                let items = cachedResults.items.slice();
+                items = [{
+                    _id: new Date().getDate() + '',
+                    content: this.state.content,
+                    replyBy: {
+                        nickname: '狗狗说',
+                        avatar: 'http://dummyimage.com/640x640/f27988',
+                    }
+                }].concat(items);
+                cachedResults.items = items;
+                cachedResults.total = cachedResults.total + 1;
+                this.setState({
+                    isSending: false,
+                    comments: cachedResults.items,
+                });
+                this._setModalVisible(false);
+            }).catch(error => {
+                console.error(error);
+                this.setState({
+                    isSending: false,
+                });
+                this._setModalVisible(false);
+                Alert.alert('留言失败，稍后重试')
+            });
+        });
     }
 
     render() {
@@ -287,6 +361,37 @@ export default class HomeScreen extends React.Component {
                     ListFooterComponent={ this._renderFooter.bind(this) }
                     ListHeaderComponent={ () => this._renderHeader(data) }
                 />
+
+                <Modal
+                    animationType={'fade'}
+                    visible={this.state.modalVisible}
+                    onRequestClose={() => {this._setModalVisible(false)}}>
+                    <View style={styles.modalContainerStyle}>
+                        <Icon
+                            name="ios-close"
+                            style={styles.closeIconStyle}
+                            onPress={() => {this._setModalVisible(false)}}/>
+                        <View style={styles.commentBoxStyle}>
+                            <View style={styles.commentStyle}>
+                                <TextInput
+                                    style={styles.commentInputStyle}
+                                    placeholder="敢不敢评论一个..."
+                                    multiline={true}
+                                    defaultValue={this.state.content}
+                                    onChangeText={(text) => {
+                                        this.setState({
+                                            content: text,
+                                        })
+                                    }}
+                                />
+                            </View>
+                        </View>
+                        <Button
+                            style={styles.submitBtnStyle}
+                            onPress={this._submit.bind(this)}
+                        >评论</Button>
+                    </View>
+                </Modal>
             </View>
         );
     }
@@ -461,5 +566,56 @@ const styles = StyleSheet.create({
     loadingText: {
         color: '#777',
         textAlign: 'center',
+    },
+    listHeaderStyle: {
+        width,
+        marginTop: 10,
+    },
+    commentBoxStyle: {
+        marginTop: 10,
+        marginBottom: 10,
+        padding: 8,
+        width,
+    },
+    commentStyle: {
+        paddingLeft: 2,
+        color: '#333',
+        borderWidth: 1,
+        borderColor: '#ddd',
+        borderRadius: 4,
+        fontSize: 14,
+        height: 80,
+    },
+    commentAreaStyle: {
+        width,
+        paddingBottom: 6,
+        paddingLeft: 10,
+        paddingRight: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#eee',
+    },
+    commentAreaTextStyle: {
+
+    },
+    modalContainerStyle: {
+        flex: 1,
+        paddingTop: 45,
+        backgroundColor: '#fff',
+    },
+    closeIconStyle: {
+        alignSelf: 'center',
+        fontSize: 30,
+        color: '#ee753c',
+    },
+    submitBtnStyle: {
+        width: width - 20,
+        padding: 16,
+        marginTop: 20,
+        marginBottom: 20,
+        borderWidth: 1,
+        borderColor: '#ee753c',
+        borderRadius: 4,
+        color: '#ee753c',
+        fontSize: 18,
     }
 });

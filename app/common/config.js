@@ -12,5 +12,6 @@ export default {
         up: 'api/up',
         comment: 'api/comments',
         signup: 'api/u/signup',
+        verify: 'api/u/verify',
     }
 }

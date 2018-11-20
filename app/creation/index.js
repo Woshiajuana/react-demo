@@ -42,7 +42,7 @@ export default class List extends Component<Props> {
     }
 
     componentDidMount () {
-        this._fetchData()
+        this._fetchData();
     }
 
     _fetchData (page = 1) {

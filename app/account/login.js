@@ -47,7 +47,7 @@ export default class Login extends Component<Props> {
                 data,
             } = responseJson;
             console.log(data)
-            this.props.navigation.navigate('Creation');
+            this.props.onLoginEd(data);
         }).catch(error => {
             console.error(error);
             Alert.alert('登录失败，请稍后重试')

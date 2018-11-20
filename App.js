@@ -68,9 +68,12 @@ export default class App extends Component<Props> {
         })
     }
     _onLoginEd (user) {
-        this.setState({
-            user,
-            logined: true,
+        let data = JSON.stringify(user);
+        AsyncStorage.setItem('user', data).then(() => {
+            this.setState({
+                user,
+                logined: true,
+            })
         })
     }
     render () {

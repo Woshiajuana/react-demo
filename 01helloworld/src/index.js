@@ -25,11 +25,20 @@ function Clock(props) {
         </div>
     )
 }
+let exampleStyle = {
+    background: 'blue',
+    borderBottom: '1px solid red',
+};
 
-function run() {
-    ReactDOM.render(
-        <Clock date={new Date()}/>,
-        document.getElementById('root'),
-    )
-}
+let element = (
+    <div>
+        <h1 style={exampleStyle}>hello world</h1>
+    </div>
+);
 
+
+ReactDOM.render(
+    element,
+    // <Clock date={new Date()}/>,
+    document.getElementById('root'),
+);

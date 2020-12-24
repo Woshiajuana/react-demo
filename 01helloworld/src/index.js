@@ -17,7 +17,7 @@ import reportWebVitals from './reportWebVitals';
 reportWebVitals();
 
 // react 函数式组件
-function Clock(props) {
+function Clock1(props) {
     return (
         <div>
             <h1>现在的时间是{props.date.toLocaleTimeString()}</h1>
@@ -30,15 +30,60 @@ let exampleStyle = {
     borderBottom: '1px solid red',
 };
 
+let arrClassName = ['bg', 'fontsize'];
+
 let element = (
     <div>
-        <h1 style={exampleStyle}>hello world</h1>
+        {/*这里写注释*/}
+        <h1 className={arrClassName.join(' ')} style={exampleStyle}>hello world</h1>
     </div>
 );
 
 
+function ChildDom (props) {
+    return (
+        <div>
+            <h1>hello world</h1>
+        </div>
+    );
+}
+
+class HelloWorld extends React.Component {
+    render() {
+        return (
+            <div>
+                <h1>hello world</h1>
+            </div>
+        );
+    }
+}
+
+
+class Clock extends React.Component {
+    constructor (props) {
+        super(props);
+        this.state = {
+            time: new Date().toLocaleTimeString(),
+        }
+    }
+    render() {
+        return (
+            <div>
+                <p>当前时间：{this.state.time}</p>
+            </div>
+        );
+    }
+    // 生命周期函数，组件渲染完成时的函数
+    componentDidMount(): void {
+        setInterval(() => {
+            this.state.time = new Date().toLocaleTimeString();
+        }, 1000);
+    }
+}
+
+
+
 ReactDOM.render(
-    element,
-    // <Clock date={new Date()}/>,
+    <Clock />,
     document.getElementById('root'),
 );

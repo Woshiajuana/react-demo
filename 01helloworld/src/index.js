@@ -62,6 +62,7 @@ class HelloWorld extends React.Component {
 class Clock extends React.Component {
     constructor (props) {
         super(props);
+        // 构造函数初始化数据
         this.state = {
             time: new Date().toLocaleTimeString(),
         }
@@ -73,17 +74,46 @@ class Clock extends React.Component {
             </div>
         );
     }
-    // 生命周期函数，组件渲染完成时的函数
-    componentDidMount(): void {
+    // 生命周期函数，组件渲染完成的函数
+    componentDidMount() {
         setInterval(() => {
-            this.state.time = new Date().toLocaleTimeString();
+            // 修改数据，不要直接修改数据
+            this.setState({
+                time: new Date().toLocaleTimeString(),
+            });
         }, 1000);
+    }
+}
+
+
+class TabSwitch extends React.Component {
+    constructor (props) {
+        super(props);
+        this.state = {
+            index: 0,
+        }
+    }
+    onClick (index) {
+        this.setState({ index });
+    }
+    render () {
+        return (
+            <div>
+                <div>
+                    <button onClick={() => this.onClick(0)}>按钮1</button>
+                    <button onClick={() => this.onClick(1)}>按钮2</button>
+                </div>
+                {
+                    this.state.index === 0 ? <div>内容1</div> : <div>内容2</div>
+                }
+            </div>
+        );
     }
 }
 
 
 
 ReactDOM.render(
-    <Clock />,
+    <TabSwitch />,
     document.getElementById('root'),
 );

@@ -158,7 +158,7 @@ class ListComponent extends React.Component {
     }
     render () {
         return (
-            <ul>{this.state.arr.map(item => <li>{item}</li>)}</ul>
+            <ul>{this.state.arr.map((item, index) => <li key={index}>{item}</li>)}</ul>
         );
     }
 }

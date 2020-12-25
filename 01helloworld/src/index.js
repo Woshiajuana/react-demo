@@ -112,8 +112,59 @@ class TabSwitch extends React.Component {
 }
 
 
+class ParentComponent extends React.Component {
+    constructor (props) {
+        super (props);
+        this.state = {
+            text: '',
+        }
+    }
+    onText (e) {
+        this.setState({ text: e });
+    }
+    render () {
+        return (
+            <div>
+                <p>从子组件接收到的参数：{this.state.text}</p>
+                <ChildComponent onText={ (e) => this.onText(e) } />
+            </div>
+        )
+    }
+}
+
+class ChildComponent extends React.Component {
+    constructor (props) {
+        super (props);
+    }
+    onClick () {
+        this.props.onText('hello world');
+    }
+    render () {
+        return (
+            <div>
+                <button onClick={ () => this.onClick() }>给父组件传递参数</button>
+            </div>
+        )
+    }
+}
+
+
+class ListComponent extends React.Component {
+    constructor (props) {
+        super(props);
+        this.state = {
+            arr: [ 'a', 'b', 'c', 'd' ]
+        }
+    }
+    render () {
+        return (
+            <ul>{this.state.arr.map(item => <li>{item}</li>)}</ul>
+        );
+    }
+}
+
 
 ReactDOM.render(
-    <TabSwitch />,
+    <ListComponent />,
     document.getElementById('root'),
 );

@@ -195,6 +195,10 @@ class Lifecycle extends React.Component {
     componentWillUnmount(){
 
     }
+    // 渲染
+    render () {
+
+    }
 }
 
 

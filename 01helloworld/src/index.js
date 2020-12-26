@@ -163,6 +163,41 @@ class ListComponent extends React.Component {
     }
 }
 
+class Lifecycle extends React.Component {
+    constructor (props) {
+        super(props);
+    }
+    // 组件将要挂载渲染
+    componentWillMount() {
+
+    }
+    // 组件渲染完毕
+    componentDidMount() {
+
+    }
+    // 组件将要接收 props 数据
+    componentWillReceiveProps(nextProps, nextContext) {
+
+    }
+    // 组件接收到新的 state 或者 props ，判断是否更新，返回布尔值
+    shouldComponentUpdate(nextProps, nextState, nextContext) {
+
+    }
+    // 组件将要更新
+    componentWillUpdate(nextProps, nextState, nextContext) {
+
+    }
+    // 组件已经更新
+    componentDidUpdate(prevProps, prevState, snapshot) {
+
+    }
+    // 组件将要卸载
+    componentWillUnmount(){
+
+    }
+}
+
+
 
 ReactDOM.render(
     <ListComponent />,

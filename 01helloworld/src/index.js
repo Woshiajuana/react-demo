@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { HashRouter as Router, Route, Link } from 'react-router-dom'
 
 // ReactDOM.render(
 //   <React.StrictMode>
@@ -201,44 +202,41 @@ class Lifecycle extends React.Component {
     }
 }
 
-import { HashRouter as Router, Route, Link } from 'react-router-dom'
 
-function Home() {
+function Home(props) {
+    console.log(props);
     return (
         <h1>我是首页内容</h1>
     );
 }
-
-function List() {
+function List(props) {
+    console.log(props);
     return (
         <h1>我是列表内容</h1>
     );
 }
-
-function Details() {
+function Details(props) {
+    console.log(props);
     return (
         <h1>我是详情内容</h1>
     );
 }
-
 class RouterComponent extends React.Component {
     constructor (props) {
         super(props);
     }
     render () {
         return (
-            <div>
-                <Router>
-                    <nav>
-                        <Link to='/'>首页</Link>
-                        <Link to='/list'>列表页</Link>
-                        <Link to='/details'>详情页</Link>
-                    </nav>
-                    <Route path='/' exact component={Home}/>
-                    <Route path='/list' exact component={List}/>
-                    <Route path='/details' exact component={Details}/>
-                </Router>
-            </div>
+            <Router>
+                <nav>
+                    <Link to='/'>首页</Link>
+                    <Link to={ { pathname: 'list', query: { to: 1 } } }>列表页</Link>
+                    <Link to='/details'>详情页</Link>
+                </nav>
+                <Route path='/' exact component={Home}/>
+                <Route path='/list' exact component={List}/>
+                <Route path='/details' exact component={Details}/>
+            </Router>
         );
     }
 }

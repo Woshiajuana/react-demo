@@ -25,6 +25,7 @@ class CountNumberComponent extends React.Component {
             <div>
                 <h1>当前数值：{this.props.num}</h1>
                 <div>
+                    <ChildDom {...this.props} />
                     <button onClick={this.props.add}>+1</button>
                     <button onClick={this.props.decrement}>-1</button>
                 </div>
@@ -32,15 +33,19 @@ class CountNumberComponent extends React.Component {
         )
     }
 }
+
+function ChildDom(props) {
+    console.log(props);
+    return (
+        <div onClick={props.add}>子组件</div>
+    )
+}
 const App = connect(
     (state) => ({
         num: state.num,
     }),
     (dispatch) => ({
-        add: () => {
-            console.log('dispatch', dispatch);
-            dispatch({ type: 'add' })
-        },
+        add: () => dispatch({ type: 'add' }),
         decrement: () => dispatch({ type: 'decrement' }),
     }),
 )(CountNumberComponent);

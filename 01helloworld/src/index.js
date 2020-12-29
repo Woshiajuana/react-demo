@@ -49,6 +49,8 @@ const App = connect(
         decrement: () => dispatch({ type: 'decrement' }),
     }),
 )(CountNumberComponent);
+
+
 ReactDOM.render(
     <Provider store={store}>
         <App/>

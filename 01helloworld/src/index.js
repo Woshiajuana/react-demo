@@ -51,9 +51,29 @@ const App = connect(
 )(CountNumberComponent);
 
 
+class RefsDemo extends React.Component {
+    handleOnClick = (e) => {
+        console.log(this.input);
+    };
+    input = React.createRef();
+    render () {
+        return (
+            <div>
+                <input ref={this.input} type="text"/>
+                <button onClick={this.handleOnClick}>点我取值</button>
+            </div>
+        );
+    }
+}
+
+// ReactDOM.render(
+//     <Provider store={store}>
+//         <App/>
+//     </Provider>,
+//     document.getElementById('root'),
+// );
+
 ReactDOM.render(
-    <Provider store={store}>
-        <App/>
-    </Provider>,
+    <RefsDemo/>,
     document.getElementById('root'),
 );

@@ -1,20 +1,25 @@
+import React, {Component, Fragment} from 'react';
+import { Route, Switch, Redirect } from 'react-router-dom'
 
-import React, { Component } from 'react'
+import Home from './pages/Home'
+import List from './pages/List'
+import Added from './pages/Added'
+import NavBar from './components/NavBar'
 
-import Header from './components/Header'
-import List from './components/List'
-import Footer from './components/Footer'
-
-import './App.css';
-
-export default class App extends Component {
-  render () {
-    return (
-        <div>
-          <Header/>
-          <List/>
-          <Footer/>
-        </div>
-    );
-  }
+class App extends Component {
+    render() {
+        return (
+            <Fragment>
+                <NavBar/>
+                <Switch>
+                    <Route to='/home' component={Home}/>
+                    <Route to='/list' component={List}/>
+                    <Route to='/added' component={Added}/>
+                    <Redirect to='/home'/>
+                </Switch>
+            </Fragment>
+        );
+    }
 }
+
+export default App;

@@ -12,9 +12,9 @@ class App extends Component {
             <Fragment>
                 <NavBar/>
                 <Switch>
-                    <Route to='/home' component={Home}/>
-                    <Route to='/list' component={List}/>
-                    <Route to='/added' component={Added}/>
+                    <Route path='/home' component={Home}/>
+                    <Route path='/list' component={List}/>
+                    <Route path='/added' component={Added}/>
                     <Redirect to='/home'/>
                 </Switch>
             </Fragment>

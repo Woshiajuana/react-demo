@@ -1,5 +1,4 @@
 import React, {Component} from 'react'
-import { connect } from 'react-redux'
 
 
 class Home extends Component {
@@ -12,9 +11,4 @@ class Home extends Component {
     }
 }
 
-export default connect(
-    state => ({
-        count: state.persons.length,
-    }),
-    {},
-) (Home);
+export default Home;

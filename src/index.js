@@ -18,7 +18,9 @@ const Home = () => {
 const App = () => {
     return (
         <Fragment>
-            <Link to="/">回首页</Link>
+            <ul>
+                <li><Link to="/">回首页</Link></li>
+            </ul>
             <Switch>
                 { examples.map(({ key, value }) => <Route key={key} path={`/${key}`} component={value}/>) }
                 <Route path="/" component={Home} exact/>

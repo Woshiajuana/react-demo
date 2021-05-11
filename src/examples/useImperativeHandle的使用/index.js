@@ -1,28 +1,22 @@
 
 import React, { Fragment, useImperativeHandle, forwardRef, useRef } from 'react'
 
-
-const MyInput1 = forwardRef((props, ref) => {
-    console.log(ref, props);
+const MyInput = forwardRef((props, ref) => {
+    const inputRef = useRef(null);
+    useImperativeHandle(ref, () => inputRef.current, []);
     return (
-        <input type="text" placeholder="请输入"/>
+        <input ref={inputRef} type="text" placeholder="请输入"/>
     );
 });
 
-// const MyInput = (props, ref) => {
-//     console.log(ref, props);
-//     return (
-//         <input type="text" placeholder="请输入"/>
-//     );
-// };
-
 export default () => {
-
     const myInputRef = useRef(null);
-
     return (
         <Fragment>
-            <MyInput1 ref={myInputRef}/>
+            <MyInput ref={myInputRef}/>
+            <br/>
+            <br/>
+            <button onClick={() => myInputRef.current.focus()}>点我聚焦输入框</button>
         </Fragment>
     );
 }

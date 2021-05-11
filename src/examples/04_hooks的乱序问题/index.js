@@ -41,6 +41,7 @@ export default () => {
         <Fragment>
             <h1>当 count 大于1的时候 显示 hello world</h1>
             <br/>
+            <p>count => {count}</p>
             <button onClick={() => setCount(x => x + 1)}>+1</button>
             { display && <p>hello world</p> }
         </Fragment>

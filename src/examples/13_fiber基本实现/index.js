@@ -50,8 +50,18 @@ let rootFiber = {
 
 function performUnitOfWork (workInProgress) {
     beginWork(workInProgress);
+    // 构建孩子
     if (workInProgress.child) {
         return workInProgress.child;
+    }
+    // 如果没有儿子，就开始构建弟弟
+    while (workInProgress) {
+        // 看看有没有弟弟
+        if (workInProgress.sibling) {
+            return workInProgress.sibling;
+        }
+        // 如果没有弟弟就找叔叔
+        workInProgress = workInProgress.return;
     }
 }
 

@@ -20,6 +20,7 @@ const virtualDOM = {
         ]
     }
 };
+const Placement = 'Placement';
 
 // 开始工作循环
 // 表示一个工作单元，表示正在处理中的 fiber
@@ -56,6 +57,8 @@ function performUnitOfWork (workInProgress) {
     }
     // 如果没有儿子，就开始构建弟弟
     while (workInProgress) {
+        // 如果没有儿子 自己就结束了
+        completeUnitOfWork(workInProgress);
         // 看看有没有弟弟
         if (workInProgress.sibling) {
             return workInProgress.sibling;
@@ -63,6 +66,34 @@ function performUnitOfWork (workInProgress) {
         // 如果没有弟弟就找叔叔
         workInProgress = workInProgress.return;
     }
+}
+
+// fiber 在结束的时候，要去创建真实的 DOM 元素
+function completeUnitOfWork(workInProgress) {
+    console.log('completeUnitOfWork => ', workInProgress.key);
+    let stateNode; // 真实 DOM
+    switch (workInProgress.tag) {
+        case TAG_HOST:
+            stateNode = createStateNode(workInProgress);
+            break;
+    }
+    // 在完成工作单元的时候要判断当前的 fiber 节点
+    // makeEffectList(workInProgress)
+}
+
+// 副作用链，单链表
+// 并不是包含所有的节点，而是包含有副作用的 fiber 节点
+function makeEffectList(workInProgress) {
+
+}
+
+//
+function createStateNode (fiber) {
+    if (fiber.tag === TAG_HOST) {
+        let stateNode = document.createElement(fiber.type);
+        fiber.stateNode = stateNode;
+    }
+    return fiber.stateNode;
 }
 
 // 根据当前的 Fiber 和虚拟 DOM 构建 Fiber 树
@@ -77,6 +108,7 @@ function reconcileChildren (returnFiber, nextChildren) {
     let firstChildFiber; // 当前 returnFiber 的大儿子
     for (let i = 0; i < nextChildren.length; i++) {
         let newFiber = createFiber(nextChildren[i]);
+        newFiber.flags = Placement; // 这是一个新节点，肯定是要插入到 DOM 去
         newFiber.return = returnFiber;
         if (!previousNewFiber) {
             firstChildFiber = newFiber;

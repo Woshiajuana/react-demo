@@ -29,13 +29,6 @@ let workInProgress;
 const TAG_ROOT = 'TAG_ROOT';
 const TAG_HOST = 'TAG_HOST';
 
-function workLoop() {
-    while (workInProgress) {
-        // 如果有任务就执行
-        // 执行完成之后会返回下一个任务
-        workInProgress = performUnitOfWork(workInProgress);
-    }
-}
 
 const root = document.getElementById('root');
 
@@ -48,6 +41,37 @@ let rootFiber = {
         children: [virtualDOM]
     }
 };
+
+
+root.innerText = 'xx111'
+
+function workLoop() {
+    while (workInProgress) {
+        // 如果有任务就执行
+        // 执行完成之后会返回下一个任务
+        workInProgress = performUnitOfWork(workInProgress);
+    }
+    console.log('rootFiber => ', rootFiber);
+    commitRoot(rootFiber);
+}
+
+function commitRoot (rootFiber) {
+    let currentEffect = rootFiber.firstEffect;
+    while (currentEffect) {
+        let flags = currentEffect.flags;
+        switch (flags) {
+            case Placement:
+                commitPlacement(currentEffect);
+                break;
+        }
+        currentEffect = currentEffect.nextEffect;
+    }
+}
+
+function commitPlacement (currentEffect) {
+    let parent = currentEffect.return.stateNode;
+    parent.appendChild(currentEffect.stateNode);
+}
 
 function performUnitOfWork (workInProgress) {
     beginWork(workInProgress);
@@ -78,18 +102,38 @@ function completeUnitOfWork(workInProgress) {
             break;
     }
     // 在完成工作单元的时候要判断当前的 fiber 节点
-    // makeEffectList(workInProgress)
+    makeEffectList(workInProgress)
 }
 
 // 副作用链，单链表
 // 并不是包含所有的节点，而是包含有副作用的 fiber 节点
-function makeEffectList(workInProgress) {
-
+function makeEffectList(completeWork) {
+    let returnFiber = completeWork.return;
+    if (returnFiber) {
+        if (!returnFiber.firstEffect) {
+            returnFiber.firstEffect = completeWork.firstEffect;
+        }
+        if (completeWork.lastEffect) {
+            if (returnFiber.lastEffect) {
+                returnFiber.lastEffect.nextEffect = completeWork.firstEffect;
+            }
+            returnFiber.lastEffect = completeWork.lastEffect;
+        }
+        if (completeWork.flags) {
+            if (returnFiber.lastEffect) {
+                returnFiber.lastEffect.nextEffect = completeWork;
+            } else {
+                returnFiber.firstEffect = completeWork;
+            }
+            returnFiber.lastEffect = completeWork;
+        }
+    }
 }
 
 //
 function createStateNode (fiber) {
     if (fiber.tag === TAG_HOST) {
+        console.log('fiber.type => ', fiber);
         let stateNode = document.createElement(fiber.type);
         fiber.stateNode = stateNode;
     }
@@ -124,6 +168,7 @@ function reconcileChildren (returnFiber, nextChildren) {
 function createFiber (element) {
     return {
         tag: TAG_HOST,
+        type: element.type,
         key: element.key,
         stateNode: element.type,
         props: element.props,
@@ -132,8 +177,10 @@ function createFiber (element) {
 
 // 当前正在执行的工作单元
 workInProgress = rootFiber;
-workLoop();
 
-
-
-export default () => <div></div>
+export default () => {
+    setTimeout(() => {
+        workLoop();
+    }, 200);
+    return <div></div>;
+}

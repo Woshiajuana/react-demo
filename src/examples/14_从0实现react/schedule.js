@@ -9,7 +9,7 @@ import { TAG_ROOT, ELEMENT_TEXT, TAG_HOST, TAG_TEXT, PLACEMENT, UPDATE, DELETION
 let nextUnitOfWork = null;
 let workInProgressRoot = null; // RootFiber 应用的根
 
-function scheduleRoot(rootFiber) {
+export function scheduleRoot(rootFiber) {
     workInProgressRoot = rootFiber;
     nextUnitOfWork = rootFiber;
 }
@@ -31,13 +31,53 @@ function workLoop(deadline) {
 // 开始单元工作
 function performUnitOfWork(currentFiber) {
     beginWork(currentFiber);
+    if (currentFiber.child) {
+        return currentFiber.child;
+    }
+    // 如果没有儿子，就开始构建弟弟
+    while (currentFiber) {
+        // 如果没有儿子 自己就结束了
+        completeUnitOfWork(currentFiber);
+        // 看看有没有弟弟
+        if (currentFiber.sibling) {
+            return currentFiber.sibling;
+        }
+        // 如果没有弟弟就找叔叔
+        currentFiber = currentFiber.return;
+    }
+}
+
+function completeUnitOfWork(currentFiber) {
+
 }
 
 // 开始工作
 function beginWork(currentFiber) {
     if (currentFiber.tag === TAG_ROOT) {
         updateHostRoot(currentFiber);
+    } else if (currentFiber.tag === TAG_TEXT) {
+        updateHostText(currentFiber);
     }
+}
+
+function updateHostText(currentFiber) {
+    if (!currentFiber.stateNode) {
+        currentFiber.stateNode = createDOM(currentFiber);
+    }
+}
+
+function createDOM(currentFiber) {
+    if (currentFiber.tag === TAG_TEXT) {
+        return document.createTextNode(currentFiber.props.text);
+    } else if (currentFiber.tag === TAG_HOST) {
+        const stateNode = document.createElement(currentFiber.props.type);
+        updateDOM(stateNode, {}, currentFiber.props);
+        return stateNode;
+    }
+}
+
+function updateDOM(stateNode, oldProps, newProps) {
+    setProps(stateNode, oldProps, newProps);
 }
 
 function updateHostRoot(currentFiber) {
@@ -69,6 +109,13 @@ function reconcileChildren(currentFiber, newChildren) {
             effectTag: PLACEMENT, // 副作用标识
             nextEffect: null, // effectlist 也是一个单链表
         };
+        if (newChildIndex === 0) {
+            // 太子
+            currentFiber.child = newFiber;
+        } else {
+            prevSibling.sibling = newFiber;
+        }
+        prevSibling = newFiber;
         newChildIndex++;
     }
 }

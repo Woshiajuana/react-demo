@@ -9,5 +9,16 @@ export function setProps (dom, oldProps, newProps) {
 }
 
 function setProp(dom, key, value) {
-
+    if (/^on/.test(key)) {
+        // 没有使用合成事件
+        dom[key.toLowerCase()] = value;
+    } else if (key === 'style') {
+        if (value) {
+            for(let styleName in value) {
+                dom.style[styleName] = value[styleName];
+            }
+        }
+    } else {
+        dom.setAttribute(key, value);
+    }
 }

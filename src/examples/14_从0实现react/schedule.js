@@ -14,11 +14,22 @@ let deletions = []; // 删除的节点，不放在 effectlist 里
 
 export function scheduleRoot(rootFiber) {
     console.log('rootFiber => ', rootFiber);
-    if (currentRoot) {
-        // 说明至少渲染过一次
+    if (currentRoot && currentRoot.alternate) {
+        // 第二次之后的更新
+        // 第一次渲染出来的那个 fiber tree
+        workInProgressRoot = currentRoot.alternate;
+        workInProgressRoot.props = rootFiber.props;
+        // 让这个树的替身指向的当前 currentRoot
+        workInProgressRoot.alternate = currentRoot;
+    } else if (currentRoot) {
+        // 说明至少渲染过一次 第一次更新
         rootFiber.alternate = currentRoot;
+        workInProgressRoot = rootFiber;
+    } else {
+        // 第一次渲染
+        workInProgressRoot = rootFiber;
     }
-    workInProgressRoot = rootFiber;
+    workInProgressRoot.firstEffect = workInProgressRoot.lastEffect = workInProgressRoot.nextEffect = null;
     nextUnitOfWork = workInProgressRoot;
 }
 
@@ -58,7 +69,6 @@ function commitWork(currentFiber) {
     if (!currentFiber) return;
     let returnFiber = currentFiber.return;
     let domReturn = returnFiber.stateNode;
-    console.log('currentFiber => ', currentFiber);
     if (currentFiber.effectTag === PLACEMENT) {
         // 新增节点
         domReturn.appendChild(currentFiber.stateNode);
@@ -182,9 +192,9 @@ function reconcileChildren(currentFiber, newChildren) {
         let newFiber; // 新的 fiber
         const sameType = oldFiber && newChild && oldFiber.type === newChild.type;
         let tag;
-        if (newChild.type === ELEMENT_TEXT) {
+        if (newChild && newChild.type === ELEMENT_TEXT) {
             tag = TAG_TEXT; // 这是一个文本
-        } else if (typeof newChild.type === 'string')  {
+        } else if (newChild && typeof newChild.type === 'string')  {
             tag = TAG_HOST; // 如果 type 是字符串代表是原生节点
         }
         if (sameType) {
@@ -200,15 +210,22 @@ function reconcileChildren(currentFiber, newChildren) {
                 nextEffect: null, // effectlist 也是一个单链表
             }
         } else {
-            newFiber = {
-                tag,
-                type: newChild.type,
-                props: newChild.props,
-                stateNode: null,
-                return: currentFiber, // 父Fiber
-                effectTag: PLACEMENT, // 副作用标识
-                nextEffect: null, // effectlist 也是一个单链表
-            };
+            if (newChild) {
+                // 看看新的虚拟 DOM 是不是为 null
+                newFiber = {
+                    tag,
+                    type: newChild.type,
+                    props: newChild.props,
+                    stateNode: null,
+                    return: currentFiber, // 父Fiber
+                    effectTag: PLACEMENT, // 副作用标识
+                    nextEffect: null, // effectlist 也是一个单链表
+                };
+            }
+            if (oldFiber) {
+                oldFiber.effectTag = DELETION;
+                deletions.push(oldFiber);
+            }
         }
         if (oldFiber) {
             oldFiber = oldFiber.sibling;

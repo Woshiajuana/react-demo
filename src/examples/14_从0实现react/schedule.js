@@ -9,11 +9,17 @@ import { setProps } from './utils'
 
 let nextUnitOfWork = null;
 let workInProgressRoot = null; // RootFiber 应用的根
+let currentRoot = null; // 渲染成功之后当前根 rootfiber
+let deletions = []; // 删除的节点，不放在 effectlist 里
 
 export function scheduleRoot(rootFiber) {
     console.log('rootFiber => ', rootFiber);
+    if (currentRoot) {
+        // 说明至少渲染过一次
+        rootFiber.alternate = currentRoot;
+    }
     workInProgressRoot = rootFiber;
-    nextUnitOfWork = rootFiber;
+    nextUnitOfWork = workInProgressRoot;
 }
 
 // 循环执行工作
@@ -35,21 +41,38 @@ function workLoop(deadline) {
 
 // 提交阶段
 function commitRoot() {
+
+    deletions.forEach(commitWork); // 执行 effect list 之前把该删除的元素删除
+
     let currentFiber = workInProgressRoot.firstEffect;
     while (currentFiber) {
         commitWork(currentFiber);
         currentFiber = currentFiber.nextEffect;
     }
+    deletions.length = 0; // 提交之后清空
+    currentRoot = workInProgressRoot; // 把当前渲染成功的根 fiber 赋给 current
     workInProgressRoot = null;
 }
 
 function commitWork(currentFiber) {
     if (!currentFiber) return;
     let returnFiber = currentFiber.return;
-    let returnDOM = returnFiber.stateNode;
+    let domReturn = returnFiber.stateNode;
     console.log('currentFiber => ', currentFiber);
     if (currentFiber.effectTag === PLACEMENT) {
-        returnDOM.appendChild(currentFiber.stateNode);
+        // 新增节点
+        domReturn.appendChild(currentFiber.stateNode);
+    } else if (currentFiber.effectTag === DELETION) {
+        // 删除节点
+        domReturn.removeChild(currentFiber.stateNode);
+    } else if (currentFiber.effectTag === UPDATE) {
+        if (currentFiber.type === ELEMENT_TEXT) {
+            if (currentFiber.alternate.props.text !== currentFiber.props.text) {
+                currentFiber.stateNode.textContent = currentFiber.props.text;
+            }
+        } else {
+            updateDOM(currentFiber.stateNode, currentFiber.alternate.props, currentFiber.props)
+        }
     }
     currentFiber.effectTag = null;
 }
@@ -148,6 +171,7 @@ function updateHostRoot(currentFiber) {
     reconcileChildren(currentFiber, newChildren);
 }
 
+// 根据虚拟 DOM 转成 fiber 节点
 function reconcileChildren(currentFiber, newChildren) {
     let newChildIndex = 0; // 新子节点的索引
     let prevSibling; // 上一个新的子 fiber

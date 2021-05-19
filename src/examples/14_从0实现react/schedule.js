@@ -175,31 +175,53 @@ function updateHostRoot(currentFiber) {
 function reconcileChildren(currentFiber, newChildren) {
     let newChildIndex = 0; // 新子节点的索引
     let prevSibling; // 上一个新的子 fiber
-    while (newChildIndex < newChildren.length) {
+    let oldFiber = currentFiber.alternate && currentFiber.alternate.child;
+    while (newChildIndex < newChildren.length || oldFiber) {
         // 取出虚拟 DOM 节点
         let newChild = newChildren[newChildIndex];
+        let newFiber; // 新的 fiber
+        const sameType = oldFiber && newChild && oldFiber.type === newChild.type;
         let tag;
         if (newChild.type === ELEMENT_TEXT) {
             tag = TAG_TEXT; // 这是一个文本
         } else if (typeof newChild.type === 'string')  {
             tag = TAG_HOST; // 如果 type 是字符串代表是原生节点
         }
-        let newFiber = {
-            tag,
-            type: newChild.type,
-            props: newChild.props,
-            stateNode: null,
-            return: currentFiber, // 父Fiber
-            effectTag: PLACEMENT, // 副作用标识
-            nextEffect: null, // effectlist 也是一个单链表
-        };
-        if (newChildIndex === 0) {
-            // 太子
-            currentFiber.child = newFiber;
+        if (sameType) {
+            // 说明新老 fiber 和新虚拟 DOM 类型一样，可以复用，更新即可
+            newFiber = {
+                tag: tag,
+                type: newChild.type,
+                props: newChild.props,
+                stateNode: oldFiber.stateNode,
+                return: currentFiber, // 父Fiber
+                alternate: oldFiber, // 新 fiber 执行老的 fiber
+                effectTag: UPDATE, // 副作用标识
+                nextEffect: null, // effectlist 也是一个单链表
+            }
         } else {
-            prevSibling.sibling = newFiber;
+            newFiber = {
+                tag,
+                type: newChild.type,
+                props: newChild.props,
+                stateNode: null,
+                return: currentFiber, // 父Fiber
+                effectTag: PLACEMENT, // 副作用标识
+                nextEffect: null, // effectlist 也是一个单链表
+            };
         }
-        prevSibling = newFiber;
+        if (oldFiber) {
+            oldFiber = oldFiber.sibling;
+        }
+        if (newFiber) {
+            if (newChildIndex === 0) {
+                // 太子
+                currentFiber.child = newFiber;
+            } else {
+                prevSibling.sibling = newFiber;
+            }
+            prevSibling = newFiber;
+        }
         newChildIndex++;
     }
 }

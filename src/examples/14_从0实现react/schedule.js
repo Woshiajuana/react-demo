@@ -4,7 +4,7 @@
 // diff 阶段
 // render 阶段 此阶段可以暂停
 
-import { TAG_ROOT, ELEMENT_TEXT, TAG_HOST, TAG_TEXT, PLACEMENT, UPDATE, DELETION, TAG_CLASS } from './constants'
+import { TAG_ROOT, ELEMENT_TEXT, TAG_HOST, TAG_TEXT, PLACEMENT, UPDATE, DELETION, TAG_CLASS, TAG_FUNCTION_COMPONENT } from './constants'
 import { setProps } from './utils'
 import { UpdateQueue } from './UpdateQueue'
 
@@ -87,11 +87,13 @@ function commitWork(currentFiber) {
         // 如果要挂载的节点不是 DOM 节点，比如说是类组件 Fiber
         // 一直找第一个儿子，直到找到一个真实的 DOM
         let nextFiber = currentFiber;
-        console.log('nextFiber => ', nextFiber);
-        while (![TAG_HOST, TAG_TEXT].includes(nextFiber.tag)) {
-            nextFiber = nextFiber.child;
+        if (nextFiber.tag !== TAG_CLASS) {
+            while (![TAG_HOST, TAG_TEXT].includes(nextFiber.tag)) {
+                nextFiber = nextFiber.child;
+            }
+            console.log('nextFiber => ', nextFiber);
+            domReturn.appendChild(nextFiber.stateNode);
         }
-        domReturn.appendChild(nextFiber.stateNode);
     } else if (currentFiber.effectTag === DELETION) {
         // 删除节点
         commitDeletion(currentFiber, domReturn);
@@ -178,7 +180,14 @@ function beginWork(currentFiber) {
     } else if (currentFiber.tag === TAG_CLASS) {
         // 类组件
         updateClassComponent(currentFiber);
+    } else if (currentFiber.tag === TAG_FUNCTION_COMPONENT) {
+        updateFunctionComponent(currentFiber);
     }
+}
+
+function updateFunctionComponent(currentFiber) {
+    const newChildren = [currentFiber.type(currentFiber.props)];
+    reconcileChildren(currentFiber, newChildren);
 }
 
 function updateClassComponent(currentFiber) {
@@ -253,6 +262,8 @@ function reconcileChildren(currentFiber, newChildren) {
         } else if (newChild && typeof newChild.type === 'function' && newChild.type.prototype.isReactComponent) {
             // 类组件
             tag = TAG_CLASS;
+        } else if (newChild && typeof newChild.type === 'function') {
+            tag = TAG_FUNCTION_COMPONENT;
         }
         if (sameType) {
             // 说明新老 fiber 和新虚拟 DOM 类型一样，可以复用，更新即可

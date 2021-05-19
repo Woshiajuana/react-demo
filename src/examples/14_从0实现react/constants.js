@@ -23,3 +23,6 @@ export const DELETION = Symbol.for('DELETION');
 
 // 类组件
 export const TAG_CLASS = Symbol.for('TAG_CLASS');
+
+// 函数组件
+export const TAG_FUNCTION_COMPONENT = Symbol.for('TAG_FUNCTION_COMPONENT');

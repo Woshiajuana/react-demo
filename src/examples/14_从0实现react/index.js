@@ -53,7 +53,28 @@ const element2 = React.createElement("div", {
     id: "D2",
     style: style
 }, "D2")));
-const element = React.createElement(ClassCounter, null);
+
+
+const element = React.createElement(FunctionCounter, null);
+
+
+function reducer(state, action) {
+    switch (action.type) {
+        case 'ADD':
+            return { count: state.count + 1 };
+        default:
+            return state;
+    }
+}
+
+function FunctionCounter (props) {
+    const [ state, dispatch ] = React.userReducer(reducer, { count: 0 });
+    return React.createElement("div", {
+        id: "counter"
+    }, /*#__PURE__*/React.createElement("span", null, state.count), /*#__PURE__*/React.createElement("button", {
+        onClick: () => dispatch({ type: 'ADD' })
+    }, "+1"));
+}
 
 setTimeout(() => {
     // document.getElementById('root').appendChild()

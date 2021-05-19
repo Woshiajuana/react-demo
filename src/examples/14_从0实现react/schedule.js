@@ -6,7 +6,7 @@
 
 import { TAG_ROOT, ELEMENT_TEXT, TAG_HOST, TAG_TEXT, PLACEMENT, UPDATE, DELETION, TAG_CLASS, TAG_FUNCTION_COMPONENT } from './constants'
 import { setProps } from './utils'
-import { UpdateQueue } from './UpdateQueue'
+import { UpdateQueue, Update } from './UpdateQueue'
 
 let nextUnitOfWork = null;
 let workInProgressRoot = null; // RootFiber 应用的根
@@ -186,6 +186,9 @@ function beginWork(currentFiber) {
 }
 
 function updateFunctionComponent(currentFiber) {
+    workInProgressFiber = currentFiber;
+    hookIndex = 0;
+    workInProgressFiber.hooks = [];
     const newChildren = [currentFiber.type(currentFiber.props)];
     reconcileChildren(currentFiber, newChildren);
 }
@@ -326,3 +329,29 @@ function reconcileChildren(currentFiber, newChildren) {
 
 // react 告诉浏览器  我现在有任务
 requestIdleCallback(workLoop, { timeout: 500 });
+
+
+let workInProgressFiber = null; // 正在工作中的 fiber
+let hookIndex = 0; // hooks 索引
+
+
+export function userReducer(reducer, initialValue) {
+    let newHook = workInProgressFiber.alternate && workInProgressFiber.alternate.hooks
+        && workInProgressFiber.alternate.hooks[hookIndex];
+    if (newHook) {
+        // 第二次渲染
+        newHook.state = newHook.updateQueue.forceUpdate(newHook.state);
+    } else {
+        newHook = {
+            state: initialValue,
+            updateQueue: new UpdateQueue(),
+        }
+    }
+    const dispatch = action => {
+        let payload = reducer ? reducer(newHook.state, action) : action;
+        newHook.updateQueue.enqueueUpdate(new Update(payload));
+        scheduleRoot();
+    };
+    workInProgressFiber.hooks[hookIndex] = newHook;
+    return [newHook.state, dispatch]
+}

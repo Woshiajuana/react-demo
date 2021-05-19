@@ -20,3 +20,6 @@ export const UPDATE = Symbol.for('UPDATE');
 
 // 删除节点
 export const DELETION = Symbol.for('DELETION');
+
+// 类组件
+export const TAG_CLASS = Symbol.for('TAG_CLASS');

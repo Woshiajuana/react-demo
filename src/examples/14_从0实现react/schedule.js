@@ -352,6 +352,11 @@ export function userReducer(reducer, initialValue) {
         newHook.updateQueue.enqueueUpdate(new Update(payload));
         scheduleRoot();
     };
-    workInProgressFiber.hooks[hookIndex] = newHook;
+    workInProgressFiber.hooks[hookIndex++] = newHook;
     return [newHook.state, dispatch]
+}
+
+
+export function userState(initialValue) {
+    return userReducer(null, initialValue);
 }

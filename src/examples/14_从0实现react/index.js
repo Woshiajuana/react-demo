@@ -67,12 +67,30 @@ function reducer(state, action) {
     }
 }
 
+function f() {
+    const [ state, dispatch ] = React.userReducer(reducer, { count: 0 });
+    const [ state1, dispatch1 ] = React.userReducer(reducer, { count: 0 });
+    return (
+        <div>
+            <p>{state.count}</p>
+            <p>{state1.count}</p>
+            <button onClick={() => dispatch({ type: 'ADD'}) }>+1</button>
+            <button onClick={() => dispatch1({ type: 'ADD'}) }>+1</button>
+        </div>
+    );
+}
+
 function FunctionCounter (props) {
     const [ state, dispatch ] = React.userReducer(reducer, { count: 0 });
-    return React.createElement("div", {
-        id: "counter"
-    }, /*#__PURE__*/React.createElement("span", null, state.count), /*#__PURE__*/React.createElement("button", {
-        onClick: () => dispatch({ type: 'ADD' })
+    const [ state1, dispatch1 ] = React.userReducer(reducer, { count: 0 });
+    return React.createElement("div", null, /*#__PURE__*/React.createElement("p", null, state.count), /*#__PURE__*/React.createElement("p", null, state1.count), /*#__PURE__*/React.createElement("button", {
+        onClick: () => dispatch({
+            type: 'ADD'
+        })
+    }, "+1"), /*#__PURE__*/React.createElement("button", {
+        onClick: () => dispatch1({
+            type: 'ADD'
+        })
     }, "+1"));
 }
 

@@ -1,7 +1,7 @@
 
 import { ELEMENT_TEXT } from './constants'
 import { UpdateQueue, Update } from './UpdateQueue'
-import { scheduleRoot, userReducer } from './schedule'
+import { scheduleRoot, userReducer, userState } from './schedule'
 
 // 创建元素 虚拟 DOM
 function createElement(type, config, ...children) {
@@ -51,6 +51,7 @@ Component.prototype.isReactComponent = {};
 const React = {
     createElement,
     userReducer,
+    userState,
     Component,
 };
 

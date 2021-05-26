@@ -96,5 +96,5 @@ function FunctionCounter (props) {
 
 setTimeout(() => {
     // document.getElementById('root').appendChild()
-    ReactDOM.render(element, document.getElementById('root'));
+    // ReactDOM.render(element, document.getElementById('root'));
 }, 200);

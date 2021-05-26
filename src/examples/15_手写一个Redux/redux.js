@@ -1,7 +1,6 @@
 
-import React, {useContext, useState, useEffect} from 'react'
+import React, { useState, useEffect } from 'react'
 
-const appContext = {};
 
 let state;
 let reducer;
@@ -61,25 +60,53 @@ export const createStore = (_reducer, initState) => {
 };
 
 const changed = (oldState, newState) => {
-
+    let changed = false;
+    for (let key in oldState) {
+        if (oldState[key] !== newState[key]) {
+            changed = true;
+        }
+    }
+    return changed;
 };
+
+
 
 export const connect = (selector, dispatchSelector) => (Component) => {
     return (props) => {
         const dispatch = (action) => {
             setState(reducer(state, action));
         };
-
-        const data = selector ? selector(state) : {state};
+        let data = selector ? selector(state) : {state};
         const dispatchers = dispatchSelector ? dispatchSelector(dispatch) : {dispatch};
 
         const [, update] = useState({});
         useEffect(() => store.subscribe(() => {
             const newData = selector ? selector(state) : {state};
             if (changed(data, newData)) {
+                data = newData;
                 update({});
             }
         }), [selector]);
         return <Component {...props} {...data} {...dispatchers}/>
     };
 };
+
+const appContext = React.createContext(null);
+
+export const Provider = ({ store, children }) => {
+    return (
+        <appContext.Provider value={store}>
+            {children}
+        </appContext.Provider>
+    );
+};
+
+
+// redux 中间件
+function applyMiddleware(store, middlewares) {
+    middlewares = middlewares.slice();
+    middlewares.resolve();
+    let dispatch = store.dispatch;
+    middlewares.forEach(middleware => (dispatch = middleware(store)(dispatch)));
+    return Object.assign({}, store, {dispatch});
+}

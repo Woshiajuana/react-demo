@@ -58,14 +58,17 @@ const ThreeChild = connect(
 });
 
 const Parent = connect(
-    ({ oneGrandsonToParent }) => ({ oneGrandsonToParent })
-)(({ oneGrandsonToParent }) => {
+    ({ oneGrandsonToParent }) => ({ oneGrandsonToParent }),
+    dispatch => ({
+        onParentToOneGrandson: event => dispatch({ type: 'PARENT_TO_ONE_GRANDSON', data: event.target.value }),
+    })
+)(({ oneGrandsonToParent, onParentToOneGrandson }) => {
     console.log('父元素渲染了');
     return (
         <div style={style}>
             <h2>父元素</h2>
             <ul>
-                <li>跟大孙子聊天 <input type="text"/> 收到大孙子的回话: {oneGrandsonToParent}</li>
+                <li>跟大孙子聊天 <input onChange={onParentToOneGrandson} type="text"/> 收到大孙子的回话: {oneGrandsonToParent}</li>
             </ul>
             <OneChild/>
             <TwoChild/>

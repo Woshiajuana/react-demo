@@ -15,9 +15,11 @@ export default function App () {
                 <Link to="/16_手写react-router-dom/list">列表页面</Link>
                 <Link to="/16_手写react-router-dom/details">详情页面</Link>
             </div>
-            <Route path='/16_手写react-router-dom/' component={Home}/>
-            <Route path='/16_手写react-router-dom/list' component={List}/>
-            <Route path='/16_手写react-router-dom/details' component={Details}/>
+            <Switch>
+                <Route path='/16_手写react-router-dom/list' component={List}/>
+                <Route path='/16_手写react-router-dom/details' component={Details}/>
+                <Route path='/16_手写react-router-dom/' component={Home}/>
+            </Switch>
         </Router>
     );
 

@@ -42,7 +42,9 @@
     ]
   },
   "devDependencies": {
+    "@types/react-is": "^17.0.3",
     "customize-cra": "^1.0.0",
+    "dom-align": "^1.12.2",
     "mockjs": "^1.1.0",
     "node-sass": "^4.7.2",
     "react-app-rewired": "^2.1.8",

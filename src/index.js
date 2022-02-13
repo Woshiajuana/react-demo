@@ -21,9 +21,9 @@ const App = () => {
         <Fragment>
             <div>
                 <Dropdown overlay={<div>112131232</div>}>
-                    <a className="ant-dropdown-link" onClick={e => e.preventDefault()}>
+                    <Button className="ant-dropdown-link" onClick={e => e.preventDefault()}>
                         Hover me
-                    </a>
+                    </Button>
                 </Dropdown>
             </div>
             <br/>
